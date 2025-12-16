@@ -6,6 +6,9 @@ import shutil
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+import os
 import numpy as np
 import pandas as pd
 import torch
@@ -35,6 +38,10 @@ SYNTH_DIR.mkdir(parents=True, exist_ok=True)
 
 
 app = FastAPI(title="DP Synthetic Tabular Generator")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -111,6 +118,10 @@ def _find_entry(run_name: str) -> Dict[str, Any]:
         if e.get("run_name") == run_name:
             return e
     raise HTTPException(status_code=404, detail=f"Run not found: {run_name}")
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
 
 @app.get("/models")
