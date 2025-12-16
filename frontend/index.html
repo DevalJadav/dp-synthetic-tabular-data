@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DP Synthetic Tabular Generator — Single Page Dashboard</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg0:#060a14;
+      --bg1:#0b1220;
+      --card:#0f172a;
+      --card2:#0b1326;
+      --stroke:rgba(255,255,255,.08);
+      --stroke2:rgba(255,255,255,.12);
+      --txt:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#38bdf8;
+      --accent2:#a78bfa;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --warn:#f59e0b;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 800px at 20% -10%, rgba(56,189,248,.18), transparent 60%),
+        radial-gradient(900px 700px at 110% 10%, rgba(167,139,250,.16), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+
+    .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 18px 40px;
+    }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      padding: 16px 6px 22px;
+      border-bottom:1px solid var(--stroke);
+      margin-bottom: 18px;
+    }
+
+    .title h1{
+      margin:0;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .title p{
+      margin:6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .topRight{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      background: rgba(255,255,255,.03);
+      font-size:12px;
+      color: var(--muted);
+      user-select:none;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--good);
+      box-shadow:0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    @media (max-width: 1100px){
+      .grid{grid-template-columns:1fr;}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHead{
+      padding: 14px 16px;
+      border-bottom:1px solid var(--stroke);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      background: rgba(0,0,0,.15);
+    }
+    .cardHead h2{
+      margin:0;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing:.3px;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    .cardBody{ padding: 14px 16px 16px; }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .row > *{ flex: 1; min-width: 120px; }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom:6px;
+    }
+
+    select, input{
+      width:100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border:1px solid var(--stroke2);
+      background: rgba(0,0,0,.25);
+      color: var(--txt);
+      outline: none;
+    }
+
+    button{
+      padding: 11px 12px;
+      border-radius: 12px;
+      border:1px solid var(--stroke2);
+      background: rgba(56,189,248,.12);
+      color: var(--txt);
+      cursor:pointer;
+      font-weight:700;
+      transition: transform .08s ease, background .2s ease;
+    }
+    button:hover{ background: rgba(56,189,248,.18); }
+    button:active{ transform: scale(.99); }
+
+    .btnPrimary{ background: rgba(56,189,248,.2); border-color: rgba(56,189,248,.35); }
+    .btnPrimary:hover{ background: rgba(56,189,248,.28); }
+
+    .btnPurple{ background: rgba(167,139,250,.18); border-color: rgba(167,139,250,.35); }
+    .btnPurple:hover{ background: rgba(167,139,250,.26); }
+
+    .btnDanger{ background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.3); }
+    .btnDanger:hover{ background: rgba(239,68,68,.2); }
+
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      background: rgba(0,0,0,.25);
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 12px;
+      overflow:auto;
+      max-height: 220px;
+    }
+
+    .metricsGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media(max-width: 900px){
+      .metricsGrid{grid-template-columns:1fr;}
+    }
+
+    .metricCard{
+      background: rgba(0,0,0,.22);
+      border:1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 12px 12px 14px;
+      min-height: 84px;
+      transform: translateY(0);
+      transition: transform .2s ease, border-color .2s ease;
+    }
+    .metricCard:hover{ transform: translateY(-2px); border-color: rgba(56,189,248,.25); }
+    .metricLabel{ color: var(--muted); font-size: 12px; }
+    .metricValue{ font-size: 26px; font-weight: 800; margin-top: 6px; }
+    .metricSub{ color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.03);
+    }
+    .badge.ok{ color: var(--good); border-color: rgba(34,197,94,.28); background: rgba(34,197,94,.08); }
+    .badge.fail{ color: var(--bad); border-color: rgba(239,68,68,.28); background: rgba(239,68,68,.08); }
+    .badge.warn{ color: var(--warn); border-color: rgba(245,158,11,.28); background: rgba(245,158,11,.08); }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media(max-width: 1000px){ .split{grid-template-columns:1fr;} }
+
+    .sectionFade{
+      animation: fadeUp .45s ease both;
+    }
+    @keyframes fadeUp{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    .chartGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    @media(max-width:1100px){ .chartGrid{grid-template-columns:1fr;} }
+
+    .chartBox{
+      background: rgba(0,0,0,.22);
+      border:1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 360px;
+    }
+    .chartBox h3{
+      margin:0 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing:.2px;
+    }
+    canvas{ width:100% !important; height: 300px !important; }
+
+    .heat{
+      width:100%;
+      border-collapse: separate;
+      border-spacing: 8px;
+      margin-top: 6px;
+    }
+    .heat th{
+      text-align:left;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .heat td{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.2);
+      font-size: 12px;
+    }
+
+    .smallHelp{ color: var(--muted); font-size: 12px; line-height: 1.45; margin: 8px 0 0; }
+    .hr{ height:1px;background:var(--stroke);margin:12px 0; }
+
+    .toggleRow{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .toggle{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px;
+      border:1px solid var(--stroke);
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      user-select:none;
+    }
+    .toggle input{ width:auto; }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title">
+      <h1>DP Synthetic Tabular Generator</h1>
+      <p>Single-page dashboard (training • registry • generation • visualization • quality gate • fairness • model comparison).</p>
+    </div>
+    <div class="topRight">
+      <div class="pill"><span class="dot"></span> Backend: <span id="backendStatus">checking…</span></div>
+      <div class="pill">API: <span id="apiBaseText"></span></div>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- LEFT: Controls + Logs -->
+    <div class="card sectionFade">
+      <div class="cardHead">
+        <h2>Controls</h2>
+        <span id="qualityBadgeTop" class="badge warn">No model loaded</span>
+      </div>
+      <div class="cardBody">
+
+        <label>API Base</label>
+        <input id="apiBase" value="http://localhost:8000" />
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <label>Model</label>
+            <select id="runSelect"></select>
+          </div>
+          <div>
+            <label>Compare with</label>
+            <select id="runSelect2" disabled></select>
+          </div>
+        </div>
+
+        <div class="toggleRow" style="margin-top:10px;">
+          <div class="toggle">
+            <input type="checkbox" id="compareToggle" />
+            <label style="margin:0;">Enable comparison</label>
+          </div>
+          <button onclick="refreshModels()">Refresh Models</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <button class="btnPrimary" onclick="train('dp_ctgan')">Train DP-CTGAN</button>
+          <button class="btnPrimary" onclick="train('dp_dcf_diffusion')">Train DP DCF-Diffusion</button>
+          <button class="btnPurple" onclick="agentTrainBest()">Agent: Train & Pick Best</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <label>Generate Rows</label>
+            <input id="genRows" type="number" value="1000" />
+          </div>
+          <div>
+            <label>Visualize Rows</label>
+            <input id="vizRows" type="number" value="10000" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btnPrimary" onclick="generate()">Generate Preview + Save CSV</button>
+          <button class="btnPrimary" onclick="visualize()">Visualize Real vs Synth</button>
+        </div>
+
+        <p class="smallHelp">
+          Tip: Changing the model dropdown updates metrics instantly. Visualize uses <b>/visualize</b> and charts update smoothly.
+        </p>
+
+        <div class="hr"></div>
+
+        <label>Logs</label>
+        <div id="log" class="mono">Ready.</div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Metrics + Charts + Fairness -->
+    <div class="card sectionFade">
+      <div class="cardHead">
+        <h2>Dashboard</h2>
+        <span class="badge" id="modelTypeBadge">—</span>
+      </div>
+
+      <div class="cardBody">
+
+        <div class="split">
+          <div>
+            <div class="metricsGrid" id="metricsPrimary"></div>
+            <div style="margin-top:10px;">
+              <div id="qualityGateBox"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="metricsGrid" id="metricsCompare" style="opacity:.6;"></div>
+            <div style="margin-top:10px;">
+              <div id="qualityGateBox2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="chartGrid">
+          <div class="chartBox">
+            <h3>Age distribution (Real vs Synthetic)</h3>
+            <canvas id="ageChart"></canvas>
+          </div>
+          <div class="chartBox">
+            <h3>Hours/week distribution (Real vs Synthetic)</h3>
+            <canvas id="hoursChart"></canvas>
+          </div>
+          <div class="chartBox">
+            <h3>Income distribution (Real vs Synthetic)</h3>
+            <canvas id="incomeChart"></canvas>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="split">
+          <div>
+            <h3 style="margin:0; font-size:13px; color:var(--muted); font-weight:800;">Fairness Heatmap (Demographic Parity Diff)</h3>
+            <p class="smallHelp" style="margin-top:6px;">
+              Lower is better. If your backend returns nulls, it means fairness is not computed yet for that model.
+            </p>
+
+            <table class="heat">
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>Selected Model</th>
+                  <th>Compare Model</th>
+                </tr>
+              </thead>
+              <tbody id="fairnessTable"></tbody>
+            </table>
+          </div>
+
+          <div>
+            <h3 style="margin:0; font-size:13px; color:var(--muted); font-weight:800;">Generate Preview (top rows)</h3>
+            <p class="smallHelp" style="margin-top:6px;">This shows the response preview from <b>/generate</b>.</p>
+            <div id="preview" class="mono">No preview yet.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ---------- State ----------
+  let API_BASE = "http://localhost:8000";
+  let registry = [];
+  let ageChart=null, hoursChart=null, incomeChart=null;
+
+  const $ = (id)=>document.getElementById(id);
+
+  function log(msg){
+    const el = $("log");
+    el.textContent = msg;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function safeNum(x){
+    const n = Number(x);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function fmt(x, digits=3){
+    const n = safeNum(x);
+    return n===null ? "—" : n.toFixed(digits);
+  }
+
+  // ---------- Backend check ----------
+  async function ping(){
+    try{
+      const res = await fetch(API_BASE + "/models");
+      $("backendStatus").textContent = res.ok ? "online" : "error";
+    }catch(e){
+      $("backendStatus").textContent = "offline";
+    }
+  }
+
+  // ---------- Registry / models ----------
+  async function refreshModels(){
+    API_BASE = $("apiBase").value.trim() || "http://localhost:8000";
+    $("apiBaseText").textContent = API_BASE;
+
+    log("Loading models...");
+    try{
+      const res = await fetch(API_BASE + "/models");
+      const data = await res.json();
+      if(!res.ok) throw new Error(JSON.stringify(data));
+      registry = Array.isArray(data) ? data : [];
+
+      // populate selects
+      const s1 = $("runSelect");
+      const s2 = $("runSelect2");
+      s1.innerHTML = "";
+      s2.innerHTML = "";
+
+      if(registry.length===0){
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No models found";
+        s1.appendChild(opt);
+        const opt2 = opt.cloneNode(true);
+        s2.appendChild(opt2);
+        log("No models in registry.json yet.");
+        return;
+      }
+
+      registry.forEach(e=>{
+        const opt = document.createElement("option");
+        opt.value = e.run_name;
+        opt.textContent = `${e.run_name} (${e.type})`;
+        s1.appendChild(opt);
+
+        const optB = document.createElement("option");
+        optB.value = e.run_name;
+        optB.textContent = `${e.run_name} (${e.type})`;
+        s2.appendChild(optB);
+      });
+
+      // default compare to second item if exists
+      if(registry.length>1) s2.selectedIndex = 1;
+
+      log(JSON.stringify(registry, null, 2));
+
+      // auto-update metrics
+      updateDashboardFromSelection();
+      await ping();
+    }catch(err){
+      console.error(err);
+      log("❌ Error loading models: " + err);
+      $("backendStatus").textContent = "offline";
+    }
+  }
+
+  function findEntry(runName){
+    return registry.find(x=>x.run_name===runName) || null;
+  }
+
+  // ---------- Dropdown auto-update ----------
+  function updateDashboardFromSelection(){
+    const r1 = $("runSelect").value;
+    const r2 = $("runSelect2").value;
+    const compareOn = $("compareToggle").checked;
+
+    const e1 = findEntry(r1);
+    const e2 = compareOn ? findEntry(r2) : null;
+
+    renderMetrics("metricsPrimary", e1, false);
+    renderMetrics("metricsCompare", e2, true);
+
+    renderQualityGate("qualityGateBox", e1);
+    renderQualityGate("qualityGateBox2", e2);
+
+    renderFairnessHeatmap(e1, e2);
+
+    // top badge + type badge
+    $("modelTypeBadge").textContent = e1 ? e1.type : "—";
+    $("qualityBadgeTop").className = "badge warn";
+    $("qualityBadgeTop").textContent = "No model loaded";
+    if(e1?.metrics?.quality_gate){
+      $("qualityBadgeTop").className = "badge " + (e1.metrics.quality_gate.ok ? "ok" : "fail");
+      $("qualityBadgeTop").textContent = e1.metrics.quality_gate.ok ? "Quality Gate: PASS" : "Quality Gate: FAIL";
+    }
+  }
+
+  function renderMetrics(containerId, entry, faded){
+    const el = $(containerId);
+    el.innerHTML = "";
+
+    const m = entry?.metrics || {};
+    const util = m.synth_train_real_test || {};
+    const base = m.real_train_real_test || {};
+    const q = m.quality || {};
+
+    const cards = [
+      {label:"Synth→Real AUC", value: fmt(util.auc), sub:"Utility on real test"},
+      {label:"Synth→Real Acc", value: fmt(util.acc), sub:"Classifier trained on synth"},
+      {label:"Synth→Real F1", value: fmt(util.f1), sub:"F1 on real test"},
+      {label:"Real→Real AUC", value: fmt(base.auc), sub:"Upper bound baseline"},
+      {label:"Label Balance", value: labelBalanceText(q.synth_label_dist), sub:"Synthetic income distribution"},
+      {label:"Duplicate Ratio", value: fmt(q.synth_duplicate_ratio, 4), sub:"Lower is better"}
+    ];
+
+    cards.forEach(c=>{
+      const d = document.createElement("div");
+      d.className = "metricCard";
+      d.innerHTML = `
+        <div class="metricLabel">${c.label}</div>
+        <div class="metricValue">${c.value}</div>
+        <div class="metricSub">${c.sub}</div>
+      `;
+      if(!entry){
+        d.style.opacity = faded ? .25 : .55;
+      }
+      el.appendChild(d);
+    });
+  }
+
+  function labelBalanceText(dist){
+    if(!dist || typeof dist !== "object") return "—";
+    const keys = Object.keys(dist);
+    if(keys.length===0) return "—";
+    const parts = keys.map(k=> `${k}: ${Math.round(dist[k]*100)}%`);
+    return parts.join(" | ");
+  }
+
+  function renderQualityGate(containerId, entry){
+    const el = $(containerId);
+    if(!entry){
+      el.innerHTML = `<span class="badge warn">Compare disabled</span>`;
+      return;
+    }
+    const g = entry?.metrics?.quality_gate;
+    if(!g){
+      el.innerHTML = `<span class="badge warn">Quality gate not present</span>`;
+      return;
+    }
+    const badge = g.ok ? "ok" : "fail";
+    const reasons = (g.reasons || []).length ? `<div class="smallHelp" style="margin-top:6px;color:var(--muted)">• ${g.reasons.join("<br>• ")}</div>` : "";
+    el.innerHTML = `
+      <div class="badge ${badge}">
+        ${g.ok ? "PASS" : "FAIL"} · AUC=${fmt(g.auc)} · Imbalance=${fmt(g.label_imbalance)} · Dup=${fmt(g.dup_ratio,4)}
+      </div>
+      ${reasons}
+    `;
+  }
+
+  function fairnessColor(v){
+    if(v === null || v === undefined) return "rgba(255,255,255,.04)";
+    const x = Math.max(0, Math.min(1, Number(v)));
+    // map [0..1] to green->red style (no exact palette needed)
+    // low (good) => more greenish; high (bad) => more reddish
+    const r = Math.round(60 + 160*x);
+    const g = Math.round(200 - 120*x);
+    const b = Math.round(90  - 40*x);
+    return `rgba(${r},${g},${b},0.18)`;
+  }
+
+  function renderFairnessHeatmap(e1, e2){
+    const tbody = $("fairnessTable");
+    tbody.innerHTML = "";
+
+    const attrs = ["race","sex","native_country"];
+    attrs.forEach(a=>{
+      const v1 = e1?.metrics?.fairness?.demographic_parity_diff?.[a] ?? null;
+      const v2 = e2?.metrics?.fairness?.demographic_parity_diff?.[a] ?? null;
+
+      const td1 = fairnessCell(v1);
+      const td2 = fairnessCell(v2);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${a}</td>
+        ${td1}
+        ${td2}
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function fairnessCell(v){
+    if(v === null) return `<td style="background: rgba(255,255,255,.04)">pending</td>`;
+    const n = safeNum(v);
+    if(n === null) return `<td style="background: rgba(255,255,255,.04)">—</td>`;
+    return `<td style="background:${fairnessColor(n)}">dp diff: ${n.toFixed(3)}</td>`;
+  }
+
+  // ---------- Train endpoints ----------
+  async function train(type){
+    let endpoint = "";
+    if(type==="dp_ctgan") endpoint="/train/dp_ctgan";
+    else if(type==="dp_dcf_diffusion") endpoint="/train/dp_dcf_diffusion";
+    else { log("Unknown model type: " + type); return; }
+
+    log(`Training ${type}...`);
+    try{
+      const res = await fetch(API_BASE + endpoint, {method:"POST"});
+      const data = await res.json();
+      if(!res.ok) throw new Error(JSON.stringify(data));
+      log(JSON.stringify(data, null, 2));
+      await refreshModels();
+    }catch(err){
+      console.error(err);
+      log("❌ Train error: " + err);
+    }
+  }
+
+  async function agentTrainBest(){
+    log("🤖 Agent is training & picking best...");
+    try{
+      const res = await fetch(API_BASE + "/orchestrate/train_best", {method:"POST"});
+      const data = await res.json();
+      if(!res.ok) throw new Error(JSON.stringify(data));
+      log(JSON.stringify(data, null, 2));
+      await refreshModels();
+    }catch(err){
+      console.error(err);
+      log("❌ Agent error: " + err);
+    }
+  }
+
+  // ---------- Generate (preview + CSV) ----------
+  async function generate(){
+    const run = $("runSelect").value;
+    const n = parseInt($("genRows").value, 10) || 1000;
+    if(!run){ alert("Select a model first."); return; }
+
+    log(`Generating ${n} rows from ${run}...`);
+    const params = new URLSearchParams({run_name: run, n: String(n)});
+    try{
+      const res = await fetch(API_BASE + "/generate?" + params.toString(), {method:"POST"});
+      const data = await res.json();
+      if(!res.ok) throw new Error(JSON.stringify(data));
+      $("preview").textContent = JSON.stringify(data.data_preview, null, 2);
+      log(JSON.stringify(data, null, 2));
+    }catch(err){
+      console.error(err);
+      log("❌ Generate failed: " + err);
+    }
+  }
+
+  // ---------- Visualize charts ----------
+  async function visualize(){
+    const run = $("runSelect").value;
+    const nSynth = parseInt($("vizRows").value, 10) || 10000;
+    if(!run){ alert("Select a model first."); return; }
+
+    log(`Visualizing ${run} with n_synth=${nSynth}...`);
+    const params = new URLSearchParams({run_name: run, n_synth: String(nSynth)});
+    try{
+      const res = await fetch(API_BASE + "/visualize?" + params.toString(), {method:"POST"});
+      const data = await res.json();
+      if(!res.ok) throw new Error(JSON.stringify(data));
+
+      renderBar("ageChart", data.numeric?.age?.bins || [], data.numeric?.age?.real_counts || [], data.numeric?.age?.synth_counts || [], "Age");
+      renderBar("hoursChart", data.numeric?.hours_per_week?.bins || [], data.numeric?.hours_per_week?.real_counts || [], data.numeric?.hours_per_week?.synth_counts || [], "Hours/week");
+      renderBar("incomeChart", data.categorical?.income?.categories || [], data.categorical?.income?.real_counts || [], data.categorical?.income?.synth_counts || [], "Income");
+
+      log(JSON.stringify(data, null, 2));
+    }catch(err){
+      console.error(err);
+      log("❌ Visualize failed: " + err);
+    }
+  }
+
+  function renderBar(canvasId, labels, realCounts, synthCounts, xTitle){
+    let ref = null;
+    if(canvasId==="ageChart") ref = ageChart;
+    if(canvasId==="hoursChart") ref = hoursChart;
+    if(canvasId==="incomeChart") ref = incomeChart;
+    if(ref) ref.destroy();
+
+    const ctx = $(canvasId).getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          { label: "Real", data: realCounts },
+          { label: "Synthetic", data: synthCounts }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 450 },
+        scales: {
+          x: { ticks: { maxRotation: 55, minRotation: 0, autoSkip: true } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    if(canvasId==="ageChart") ageChart = chart;
+    if(canvasId==="hoursChart") hoursChart = chart;
+    if(canvasId==="incomeChart") incomeChart = chart;
+  }
+
+  // ---------- Events ----------
+  $("compareToggle").addEventListener("change", ()=>{
+    $("runSelect2").disabled = !$("compareToggle").checked;
+    $("metricsCompare").style.opacity = $("compareToggle").checked ? "1" : ".6";
+    updateDashboardFromSelection();
+  });
+
+  $("runSelect").addEventListener("change", updateDashboardFromSelection);
+  $("runSelect2").addEventListener("change", updateDashboardFromSelection);
+
+  $("apiBase").addEventListener("change", refreshModels);
+
+  // ---------- Boot ----------
+  window.addEventListener("load", async ()=>{
+    $("apiBaseText").textContent = $("apiBase").value.trim();
+    await refreshModels();
+    await ping();
+  });
+</script>
+</body>
+</html>
++

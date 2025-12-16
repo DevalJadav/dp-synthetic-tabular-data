@@ -1,0 +1,11 @@
+torch 
+opacus 
+ctgan 
+fastapi 
+uvicorn[standard] 
+pandas 
+scikit-learn 
+matplotlib 
+seaborn
+gradio 
+requests

@@ -1,0 +1,117 @@
+[
+  {
+    "run_name": "dp_dcf_diffusion_20251216_210556",
+    "type": "dp_dcf_diffusion",
+    "model_path": "E:\\Deep Learning Application\\models\\dp_dcf_diffusion_20251216_210556.pt",
+    "metrics": {
+      "eval_seed": 1625753578,
+      "real_train_real_test": {
+        "acc": 0.8240357029008607,
+        "f1": 0.8294190358467244,
+        "auc": 0.9028909125791807
+      },
+      "synth_train_real_test": {
+        "acc": 0.677080012751036,
+        "f1": 0.6876349059512796,
+        "auc": 0.7318180857429013
+      },
+      "quality": {
+        "real_label_dist": {
+          "<=50K": 0.5,
+          ">50K": 0.5
+        },
+        "synth_label_dist": {
+          ">50K": 0.5,
+          "<=50K": 0.5
+        },
+        "synth_duplicate_ratio": 0.0
+      },
+      "fairness": {
+        "demographic_parity_diff": {
+          "race": null,
+          "sex": null,
+          "native_country": null
+        }
+      },
+      "quality_gate": {
+        "ok": true,
+        "auc": 0.7318180857429013,
+        "label_imbalance": 1.000000082740371e-09,
+        "dup_ratio": 0.0,
+        "reasons": [],
+        "thresholds": {
+          "min_auc": 0.52,
+          "max_imbalance": 0.35,
+          "max_dup_ratio": 0.05
+        }
+      }
+    },
+    "timestamp": "20251216_210556",
+    "noise_multiplier": 0.6,
+    "max_grad_norm": 1.0,
+    "epsilon": null,
+    "seed": 1498839238,
+    "split_seed": 0,
+    "sample_seed": 445961102,
+    "conditional": true,
+    "labels": [
+      "<=50K",
+      ">50K"
+    ]
+  },
+  {
+    "run_name": "dp_ctgan_20251216_210448",
+    "type": "dp_ctgan",
+    "model_path": "E:\\Deep Learning Application\\models\\dp_ctgan_20251216_210448.pt",
+    "metrics": {
+      "eval_seed": 1291029717,
+      "real_train_real_test": {
+        "acc": 0.8310487727127829,
+        "f1": 0.8322784810126582,
+        "auc": 0.9065763972893173
+      },
+      "synth_train_real_test": {
+        "acc": 0.5508447561364361,
+        "f1": 0.6298923036511689,
+        "auc": 0.6069367756662895
+      },
+      "quality": {
+        "real_label_dist": {
+          "<=50K": 0.5,
+          ">50K": 0.5
+        },
+        "synth_label_dist": {
+          "<=50K": 0.5024,
+          ">50K": 0.4976
+        },
+        "synth_duplicate_ratio": 0.0
+      },
+      "fairness": {
+        "demographic_parity_diff": {
+          "race": null,
+          "sex": null,
+          "native_country": null
+        }
+      },
+      "quality_gate": {
+        "ok": true,
+        "auc": 0.6069367756662895,
+        "label_imbalance": 0.004799999995199977,
+        "dup_ratio": 0.0,
+        "reasons": [],
+        "thresholds": {
+          "min_auc": 0.52,
+          "max_imbalance": 0.35,
+          "max_dup_ratio": 0.05
+        }
+      }
+    },
+    "timestamp": "20251216_210457",
+    "noise_multiplier": 0.8,
+    "max_grad_norm": 1.0,
+    "epsilon": null,
+    "seed": 3082565944,
+    "split_seed": 0,
+    "eval_seed": 1291029717
+  }
+]
