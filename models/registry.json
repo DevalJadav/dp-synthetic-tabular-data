@@ -1,5 +1,122 @@
 [
   {
+    "run_name": "dp_dcf_diffusion_20251216_220602",
+    "type": "dp_dcf_diffusion",
+    "model_path": "E:\\Deep Learning Application\\models\\dp_dcf_diffusion_20251216_220602.pt",
+    "metrics": {
+      "eval_seed": 976743031,
+      "real_train_real_test": {
+        "acc": 0.8256295824035703,
+        "f1": 0.8313290163428924,
+        "auc": 0.9049468496767732
+      },
+      "synth_train_real_test": {
+        "acc": 0.5412814791201785,
+        "f1": 0.488809946714032,
+        "auc": 0.5772590106788413
+      },
+      "quality": {
+        "real_label_dist": {
+          "<=50K": 0.5,
+          ">50K": 0.5
+        },
+        "synth_label_dist": {
+          "<=50K": 0.5,
+          ">50K": 0.5
+        },
+        "synth_duplicate_ratio": 0.0
+      },
+      "fairness": {
+        "demographic_parity_diff": {
+          "race": null,
+          "sex": null,
+          "native_country": null
+        }
+      },
+      "quality_gate": {
+        "ok": true,
+        "auc": 0.5772590106788413,
+        "label_imbalance": 1.000000082740371e-09,
+        "dup_ratio": 0.0,
+        "reasons": [],
+        "thresholds": {
+          "min_auc": 0.52,
+          "max_imbalance": 0.35,
+          "max_dup_ratio": 0.05
+        }
+      }
+    },
+    "timestamp": "20251216_220602",
+    "noise_multiplier": 0.6,
+    "max_grad_norm": 1.0,
+    "epsilon": null,
+    "seed": 3896067485,
+    "split_seed": 0,
+    "sample_seed": 1130497077,
+    "conditional": true,
+    "labels": [
+      "<=50K",
+      ">50K"
+    ]
+  },
+  {
+    "run_name": "dp_ctgan_20251216_220450",
+    "type": "dp_ctgan",
+    "model_path": "E:\\Deep Learning Application\\models\\dp_ctgan_20251216_220450.pt",
+    "metrics": {
+      "eval_seed": 1792601071,
+      "real_train_real_test": {
+        "acc": 0.8367867389225374,
+        "f1": 0.8393977415307403,
+        "auc": 0.9137494146798298
+      },
+      "synth_train_real_test": {
+        "acc": 0.44979279566464775,
+        "f1": 0.544831223628692,
+        "auc": 0.36267738452933757
+      },
+      "quality": {
+        "real_label_dist": {
+          "<=50K": 0.5,
+          ">50K": 0.5
+        },
+        "synth_label_dist": {
+          "<=50K": 0.5,
+          ">50K": 0.5
+        },
+        "synth_duplicate_ratio": 0.0
+      },
+      "fairness": {
+        "demographic_parity_diff": {
+          "race": null,
+          "sex": null,
+          "native_country": null
+        }
+      },
+      "quality_gate": {
+        "ok": false,
+        "auc": 0.36267738452933757,
+        "label_imbalance": 1.000000082740371e-09,
+        "dup_ratio": 0.0,
+        "reasons": [
+          "auc<0.52 (got 0.36267738452933757)"
+        ],
+        "thresholds": {
+          "min_auc": 0.52,
+          "max_imbalance": 0.35,
+          "max_dup_ratio": 0.05
+        }
+      }
+    },
+    "timestamp": "20251216_220458",
+    "noise_multiplier": 0.8,
+    "max_grad_norm": 1.0,
+    "epsilon": null,
+    "seed": 2128060063,
+    "split_seed": 0,
+    "eval_seed": 1792601071
+  },
+  {
     "run_name": "dp_dcf_diffusion_20251216_210556",
     "type": "dp_dcf_diffusion",
     "model_path": "E:\\Deep Learning Application\\models\\dp_dcf_diffusion_20251216_210556.pt",
