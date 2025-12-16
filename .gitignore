@@ -6,3 +6,5 @@ results/synth/*.csv
 data/processed/
 .DS_Store
 models/*.pt
+gradio_app.py
+.gradio/
